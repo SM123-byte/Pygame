@@ -8,13 +8,33 @@ ENEMY_SIZE = 20
 NUM_ENEMIES = 7
 PLAYER_COLOR = (0, 128, 255) 
 ENEMY_COLOR = (255, 0, 0)
-BACKGROUND_COLOR = (30, 30, 30)
+BACKGROUND_COLOR_FALLBACK = (30, 30, 30)
+BACKGROUND_IMAGE = None
 
 pygame.init()
+pygame.mixer.init()
+
+# For some reason, I couldn't get the background to show up on the game screen:)
+
+try: 
+    BACKGROUND_IMAGE = pygame.transform.scale(
+        pygame.image.load('/Users/swagatmohanty/Documents/Python/Pygame/background.jpeg').convert(), (SCREEN_WIDTH, SCREEN_HEIGHT)) 
+except pygame.error as er:
+    print(f"Could not load image {er}")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Add More Sprites Game")
+
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
+
+# Same problem with the music and it not being played:)
+
+try: 
+    pygame.mixer.music.load('sound/backgrounds.ogg')
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.5)
+except pygame.error as e:
+    print(f"Could not load music file: {e}")
 
 class Base(pygame.sprite.Sprite):
     def __init__(self, size, color):
@@ -78,11 +98,14 @@ while running:
         enemy_list.add(new_enemy)
         print("Score Increased! ")
 
-    screen.fill(BACKGROUND_COLOR)
+    if BACKGROUND_IMAGE:
+        screen.blit(BACKGROUND_IMAGE, (0,0))
+    else:
+        screen.fill(BACKGROUND_COLOR_FALLBACK)
 
     all_sprites.draw(screen)
 
-    score_text = font.render(f"Score: {score}", True,   (255, 255, 255))
+    score_text = font.render(f"Score: {score}", True, (255, 255, 255))
     screen.blit(score_text, (10, 10))
 
     pygame.display.flip()
